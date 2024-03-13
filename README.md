@@ -2,7 +2,8 @@
 Easy recipe finder using real-time object detection on Android.
 
 ## Overview
-This demo app allows users to find quick recipes using their camera. The object detection model utilizes YOLOv5 ...
+This demo app allows users to find quick recipes using their camera. The object detection model utilizes YOLOv5.
+We did these changes.
 
 Note: This app was built and modified from the **Object Detection Android App Tutorial Using YOLOv5**(https://github.com/AarohiSingla/TFLite-Object-Detection-Android-App-Tutorial-Using-YOLOv5.git)
 
