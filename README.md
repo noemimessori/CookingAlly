@@ -1,32 +1,25 @@
 # RecipeAI
-Easy recipe finder using real-time object detection on Android.
+Easy recipes finder using real-time object detection on Android.
 
 ## Overview
-This demo app allows users to find quick recipes using their camera. The object detection model utilizes YOLOv5.
-We did these changes.
+This demo app allows users to find quick recipes using their camera. The object detection model utilizes YOLOv5 
+and Tensorflow Lite.
 
-Note: This app was built and modified from the **Object Detection Android App Tutorial Using YOLOv5**(https://github.com/AarohiSingla/TFLite-Object-Detection-Android-App-Tutorial-Using-YOLOv5.git)
+## Development Environment 
+ - Roboflow
+ - Yolov5
+ - Tensorflow 1.15.2 (da controllare)
+ - Android Studio Giraffe
+
+## The custom dataset
+
+Number of classes: 5 (carrot, cheese, egg, potato, zucchini)
+Number of images: 2360
+Split: Train set 75%, Valid set 16%, Test set 9%
 
 ## Usage
-To build the pretrained demo in Andorid Studio, select "Open an existing Android Studio project" and navigate to the recipeAI/recipeAI directory. Then, connect a devise and press 'run'. ....
-
-## Model Training
-
-* Create a directory in Google Drive called `food_detection`.
-
-* Add the **[training dataset]()** and **[label_map.pbtxt]()** to `food_detection`.
-
-* Open `RecipeAI_train.ipynb` and follow the notebook instructions.
-
-* To use the newly trained model, download `food_detect.tflite` from `model_checkpoints/tflite_model/` and move it to the _assets_ folder in Android Studio. It should replace the existing pretrained model.
-
-## Custom food classes
-#### Preparing the data
-* Create a directory in Google Drive called `food_detection`.
-
-#### Training the model
+To build the pretrained demo in Android Studio, import the project and navigate to the recipeAI/recipeAI directory. Then, connect a device and press 'run'. ....
 
 
-#### Adding the model to Android Studio
 
 
