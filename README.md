@@ -13,9 +13,9 @@ and Tensorflow Lite.
 
 ## The custom dataset
 
-Number of classes: 5 (carrot, cheese, egg, potato, zucchini)
-Number of images: 2360
-Split: Train set 75%, Valid set 16%, Test set 9%
+Number of classes: 5 (carrot, cheese, egg, potato, zucchini)  
+Number of images: 2360  
+Split: Train set 75%, Valid set 16%, Test set 9%  
 
 ## Usage
 To build the pretrained demo in Android Studio, import the project and navigate to the recipeAI/recipeAI directory. Then, connect a device and press 'run'. ....
