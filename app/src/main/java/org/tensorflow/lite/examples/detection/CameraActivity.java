@@ -63,9 +63,7 @@ import org.tensorflow.lite.examples.detection.env.Logger;
 
 public abstract class CameraActivity extends AppCompatActivity
     implements OnImageAvailableListener,
-        Camera.PreviewCallback,
-//        CompoundButton.OnCheckedChangeListener,
-        View.OnClickListener {
+        Camera.PreviewCallback {
   private static final Logger LOGGER = new Logger();
 
   private static final int PERMISSIONS_REQUEST = 1;
@@ -98,12 +96,17 @@ public abstract class CameraActivity extends AppCompatActivity
   protected ListView deviceView;
   protected TextView threadsTextView;
   protected ListView modelView;
+  public ListView foodView;
   /** Current indices of device and model. */
   int currentDevice = -1;
   int currentModel = -1;
   int currentNumThreads = -1;
 
+  TextView textView;
+  String nums;
+
   ArrayList<String> deviceStrings = new ArrayList<String>();
+  ArrayList<String> foodStrings = new ArrayList<String>();
 
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
@@ -112,150 +115,14 @@ public abstract class CameraActivity extends AppCompatActivity
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
     setContentView(R.layout.tfe_od_activity_camera);
-    Toolbar toolbar = findViewById(R.id.toolbar);
-    setSupportActionBar(toolbar);
-    getSupportActionBar().setDisplayShowTitleEnabled(false);
 
     if (hasPermission()) {
       setFragment();
     } else {
       requestPermission();
     }
-
-    threadsTextView = findViewById(R.id.threads);
-    currentNumThreads = Integer.parseInt(threadsTextView.getText().toString().trim());
-    plusImageView = findViewById(R.id.plus);
-    minusImageView = findViewById(R.id.minus);
-    deviceView = findViewById(R.id.device_list);
-    deviceStrings.add("CPU");
-    deviceStrings.add("GPU");
-    deviceStrings.add("NNAPI");
-    deviceView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-    ArrayAdapter<String> deviceAdapter =
-            new ArrayAdapter<>(
-                    CameraActivity.this , R.layout.deviceview_row, R.id.deviceview_row_text, deviceStrings);
-    deviceView.setAdapter(deviceAdapter);
-    deviceView.setItemChecked(defaultDeviceIndex, true);
-    currentDevice = defaultDeviceIndex;
-    deviceView.setOnItemClickListener(
-            new AdapterView.OnItemClickListener() {
-              @Override
-              public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                updateActiveModel();
-              }
-            });
-
-    bottomSheetLayout = findViewById(R.id.bottom_sheet_layout);
-    gestureLayout = findViewById(R.id.gesture_layout);
-    sheetBehavior = BottomSheetBehavior.from(bottomSheetLayout);
-    bottomSheetArrowImageView = findViewById(R.id.bottom_sheet_arrow);
-    modelView = findViewById((R.id.model_list));
-
-    modelStrings = getModelStrings(getAssets(), ASSET_PATH);
-    modelView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-    ArrayAdapter<String> modelAdapter =
-            new ArrayAdapter<>(
-                    CameraActivity.this , R.layout.listview_row, R.id.listview_row_text, modelStrings);
-    modelView.setAdapter(modelAdapter);
-    modelView.setItemChecked(defaultModelIndex, true);
-    currentModel = defaultModelIndex;
-    modelView.setOnItemClickListener(
-            new AdapterView.OnItemClickListener() {
-              @Override
-              public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                updateActiveModel();
-              }
-            });
-
-    ViewTreeObserver vto = gestureLayout.getViewTreeObserver();
-    vto.addOnGlobalLayoutListener(
-        new ViewTreeObserver.OnGlobalLayoutListener() {
-          @Override
-          public void onGlobalLayout() {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-              gestureLayout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-            } else {
-              gestureLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-            }
-            //                int width = bottomSheetLayout.getMeasuredWidth();
-            int height = gestureLayout.getMeasuredHeight();
-
-            sheetBehavior.setPeekHeight(height);
-          }
-        });
-    sheetBehavior.setHideable(false);
-
-    sheetBehavior.setBottomSheetCallback(
-        new BottomSheetBehavior.BottomSheetCallback() {
-          @Override
-          public void onStateChanged(@NonNull View bottomSheet, int newState) {
-            switch (newState) {
-              case BottomSheetBehavior.STATE_HIDDEN:
-                break;
-              case BottomSheetBehavior.STATE_EXPANDED:
-                {
-                  bottomSheetArrowImageView.setImageResource(R.drawable.icn_chevron_down);
-                }
-                break;
-              case BottomSheetBehavior.STATE_COLLAPSED:
-                {
-                  bottomSheetArrowImageView.setImageResource(R.drawable.icn_chevron_up);
-                }
-                break;
-              case BottomSheetBehavior.STATE_DRAGGING:
-                break;
-              case BottomSheetBehavior.STATE_SETTLING:
-                bottomSheetArrowImageView.setImageResource(R.drawable.icn_chevron_up);
-                break;
-            }
-          }
-
-          @Override
-          public void onSlide(@NonNull View bottomSheet, float slideOffset) {}
-        });
-
-    frameValueTextView = findViewById(R.id.frame_info);
-    cropValueTextView = findViewById(R.id.crop_info);
-    inferenceTimeTextView = findViewById(R.id.inference_info);
-
-    plusImageView.setOnClickListener(this);
-    minusImageView.setOnClickListener(this);
   }
 
-
-
-  protected ArrayList<String> getModelStrings(AssetManager mgr, String path){
-    ArrayList<String> res = new ArrayList<String>();
-    try {
-      String[] files = mgr.list(path);
-      for (String file : files) {
-        String[] splits = file.split("\\.");
-        if (splits[splits.length - 1].equals("tflite")) {
-          res.add(file);
-        }
-      }
-
-    }
-    catch (IOException e){
-      System.err.println("getModelStrings: " + e.getMessage());
-    }
-    return res;
-  }
-
-  protected int[] getRgbBytes() {
-    imageConverter.run();
-    return rgbBytes;
-  }
-
-  protected int getLuminanceStride() {
-    return yRowStride;
-  }
-
-  protected byte[] getLuminance() {
-    return yuvBytes[0];
-  }
-
-  /** Callback for android.hardware.Camera API */
   @Override
   public void onPreviewFrame(final byte[] bytes, final Camera camera) {
     if (isProcessingFrame) {
@@ -282,23 +149,30 @@ public abstract class CameraActivity extends AppCompatActivity
     yRowStride = previewWidth;
 
     imageConverter =
-        new Runnable() {
-          @Override
-          public void run() {
-            ImageUtils.convertYUV420SPToARGB8888(bytes, previewWidth, previewHeight, rgbBytes);
-          }
-        };
+            new Runnable() {
+              @Override
+              public void run() {
+                ImageUtils.convertYUV420SPToARGB8888(bytes, previewWidth, previewHeight, rgbBytes);
+              }
+            };
 
     postInferenceCallback =
-        new Runnable() {
-          @Override
-          public void run() {
-            camera.addCallbackBuffer(bytes);
-            isProcessingFrame = false;
-          }
-        };
+            new Runnable() {
+              @Override
+              public void run() {
+                camera.addCallbackBuffer(bytes);
+                isProcessingFrame = false;
+              }
+            };
     processImage();
   }
+
+  protected int[] getRgbBytes() {
+    imageConverter.run();
+    return rgbBytes;
+  }
+
+
 
   /** Callback for Camera2 API */
   @Override
@@ -550,6 +424,9 @@ public abstract class CameraActivity extends AppCompatActivity
     return debug;
   }
 
+  public void onSetDebug(final boolean debug) {
+  }
+
   protected void readyForNextImage() {
     if (postInferenceCallback != null) {
       postInferenceCallback.run();
@@ -569,47 +446,6 @@ public abstract class CameraActivity extends AppCompatActivity
     }
   }
 
-//  @Override
-//  public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//    setUseNNAPI(isChecked);
-//    if (isChecked) apiSwitchCompat.setText("NNAPI");
-//    else apiSwitchCompat.setText("TFLITE");
-//  }
-
-  @Override
-  public void onClick(View v) {
-    if (v.getId() == R.id.plus) {
-      String threads = threadsTextView.getText().toString().trim();
-      int numThreads = Integer.parseInt(threads);
-      if (numThreads >= 9) return;
-      numThreads++;
-      threadsTextView.setText(String.valueOf(numThreads));
-      setNumThreads(numThreads);
-    } else if (v.getId() == R.id.minus) {
-      String threads = threadsTextView.getText().toString().trim();
-      int numThreads = Integer.parseInt(threads);
-      if (numThreads == 1) {
-        return;
-      }
-      numThreads--;
-      threadsTextView.setText(String.valueOf(numThreads));
-      setNumThreads(numThreads);
-    }
-  }
-
-  protected void showFrameInfo(String frameInfo) {
-    frameValueTextView.setText(frameInfo);
-  }
-
-  protected void showCropInfo(String cropInfo) {
-    cropValueTextView.setText(cropInfo);
-  }
-
-  protected void showInference(String inferenceTime) {
-    inferenceTimeTextView.setText(inferenceTime);
-  }
-
-  protected abstract void updateActiveModel();
   protected abstract void processImage();
 
   protected abstract void onPreviewSizeChosen(final Size size, final int rotation);
@@ -617,8 +453,4 @@ public abstract class CameraActivity extends AppCompatActivity
   protected abstract int getLayoutId();
 
   protected abstract Size getDesiredPreviewFrameSize();
-
-  protected abstract void setNumThreads(int numThreads);
-
-  protected abstract void setUseNNAPI(boolean isChecked);
 }

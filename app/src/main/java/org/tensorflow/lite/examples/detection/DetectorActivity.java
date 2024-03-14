@@ -30,11 +30,18 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.util.Size;
 import android.util.TypedValue;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.tensorflow.lite.examples.detection.customview.OverlayView;
 import org.tensorflow.lite.examples.detection.customview.OverlayView.DrawCallback;
@@ -55,7 +62,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     private static final DetectorMode MODE = DetectorMode.TF_OD_API;
     private static final float MINIMUM_CONFIDENCE_TF_OD_API = 0.3f;
-    private static final boolean MAINTAIN_ASPECT = true;
+    private static final boolean MAINTAIN_ASPECT = false;
     private static final Size DESIRED_PREVIEW_SIZE = new Size(640, 640);
     private static final boolean SAVE_PREVIEW_BITMAP = false;
     private static final float TEXT_SIZE_DIP = 10;
@@ -90,11 +97,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
         tracker = new MultiBoxTracker(this);
 
-        final int modelIndex = modelView.getCheckedItemPosition();
-        final String modelString = modelStrings.get(modelIndex);
-
         try {
-            detector = DetectorFactory.getDetector(getAssets(), modelString);
+            detector = DetectorFactory.getDetector(getAssets(), "best-fp16.tflite");
         } catch (final IOException e) {
             e.printStackTrace();
             LOGGER.e(e, "Exception initializing classifier!");
@@ -139,77 +143,6 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                 });
 
         tracker.setFrameConfiguration(previewWidth, previewHeight, sensorOrientation);
-    }
-
-    protected void updateActiveModel() {
-        // Get UI information before delegating to background
-        final int modelIndex = modelView.getCheckedItemPosition();
-        final int deviceIndex = deviceView.getCheckedItemPosition();
-        String threads = threadsTextView.getText().toString().trim();
-        final int numThreads = Integer.parseInt(threads);
-
-        handler.post(() -> {
-            if (modelIndex == currentModel && deviceIndex == currentDevice
-                    && numThreads == currentNumThreads) {
-                return;
-            }
-            currentModel = modelIndex;
-            currentDevice = deviceIndex;
-            currentNumThreads = numThreads;
-
-            // Disable classifier while updating
-            if (detector != null) {
-                detector.close();
-                detector = null;
-            }
-
-            // Lookup names of parameters.
-            String modelString = modelStrings.get(modelIndex);
-            String device = deviceStrings.get(deviceIndex);
-
-            LOGGER.i("Changing model to " + modelString + " device " + device);
-
-            // Try to load model.
-
-            try {
-                detector = DetectorFactory.getDetector(getAssets(), modelString);
-                // Customize the interpreter to the type of device we want to use.
-                if (detector == null) {
-                    return;
-                }
-            }
-            catch(IOException e) {
-                e.printStackTrace();
-                LOGGER.e(e, "Exception in updateActiveModel()");
-                Toast toast =
-                        Toast.makeText(
-                                getApplicationContext(), "Classifier could not be initialized", Toast.LENGTH_SHORT);
-                toast.show();
-                finish();
-            }
-
-
-            if (device.equals("CPU")) {
-                detector.useCPU();
-            } else if (device.equals("GPU")) {
-                detector.useGpu();
-            } else if (device.equals("NNAPI")) {
-                detector.useNNAPI();
-            }
-            detector.setNumThreads(numThreads);
-
-            int cropSize = detector.getInputSize();
-            croppedBitmap = Bitmap.createBitmap(cropSize, cropSize, Config.ARGB_8888);
-
-            frameToCropTransform =
-                    ImageUtils.getTransformationMatrix(
-                            previewWidth, previewHeight,
-                            cropSize, cropSize,
-                            sensorOrientation, MAINTAIN_ASPECT);
-
-            cropToFrameTransform = new Matrix();
-            frameToCropTransform.invert(cropToFrameTransform);
-        });
     }
 
     @Override
@@ -277,6 +210,24 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                             }
                         }
 
+                        FloatingActionButton capture = findViewById(R.id.capture);
+                        float finalMinimumConfidence = minimumConfidence;
+                        capture.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                for (final Classifier.Recognition result : results) {
+                                    final RectF location = result.getLocation();
+                                    if (location != null && result.getConfidence() >= finalMinimumConfidence) {
+                                        canvas.drawRect(location, paint);
+                                        cropToFrameTransform.mapRect(location);
+                                        result.setLocation(location);
+                                        mappedRecognitions.add(result);
+                                        MainActivity.getInstance().addFood(String.format(result.getTitle()));
+                                    }
+                                }
+                                finish();
+                            }
+                        });
                         tracker.trackResults(mappedRecognitions, currTimestamp);
                         trackingOverlay.postInvalidate();
 
@@ -286,11 +237,35 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                                 new Runnable() {
                                     @Override
                                     public void run() {
-                                        showFrameInfo(previewWidth + "x" + previewHeight);
-                                        showCropInfo(cropCopyBitmap.getWidth() + "x" + cropCopyBitmap.getHeight());
-                                        showInference(lastProcessingTimeMs + "ms");
+                                        TextView detection_text = (TextView) findViewById(R.id.detectText);
+                                        if (mappedRecognitions.size() > 0) {
+                                            detection_text.setText("Food detected!");
+                                        } else {
+                                            detection_text.setText("Point camera at food.");
+                                        }
+
+                                        TextView frame = (TextView) findViewById(R.id.frame_info);
+                                        TextView crop = (TextView) findViewById(R.id.crop_info);
+                                        TextView inference = (TextView) findViewById(R.id.inference_info);
+
+                                        if (isDebug()) {
+                                            frame.setText("Frame: " + previewWidth + "x" + previewHeight);
+                                            frame.setVisibility(View.VISIBLE);
+
+                                            crop.setText("Crop: " + cropCopyBitmap.getWidth() + "x" + cropCopyBitmap.getHeight());
+                                            crop.setVisibility(View.VISIBLE);
+
+                                            inference.setText("Inference Time: " + lastProcessingTimeMs + "ms");
+                                            inference.setVisibility(View.VISIBLE);
+                                        } else {
+                                            frame.setVisibility(View.INVISIBLE);
+                                            crop.setVisibility(View.INVISIBLE);
+                                            inference.setVisibility(View.INVISIBLE);
+                                        }
                                     }
                                 });
+
+
                     }
                 });
     }
@@ -309,15 +284,5 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     // checkpoints.
     private enum DetectorMode {
         TF_OD_API;
-    }
-
-    @Override
-    protected void setUseNNAPI(final boolean isChecked) {
-        runInBackground(() -> detector.setUseNNAPI(isChecked));
-    }
-
-    @Override
-    protected void setNumThreads(final int numThreads) {
-        runInBackground(() -> detector.setNumThreads(numThreads));
     }
 }

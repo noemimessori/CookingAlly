@@ -14,43 +14,93 @@
  limitations under the License.
 -->
 
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#00000000">
+    android:background="@color/black">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="207dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="45dp"
+        android:layout_marginBottom="10dp"
+
+        android:fontFamily="@font/nunito_light"
+        android:text="Recipe.AI"
+        android:textColor="@android:color/background_light"
+        android:textSize="32sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/black"
-        android:orientation="vertical">
+        android:layout_marginTop="110dp"
 
+        android:background="@color/control_background"
+        android:orientation="vertical">
 
         <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:tools="http://schemas.android.com/tools"
             android:id="@+id/container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_gravity="center"
             tools:context="org.tensorflow.demo.CameraActivity" />
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:layout_alignParentTop="true"
-            android:background="@color/tfe_semi_transparent">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/tfl2_logo" />
-        </androidx.appcompat.widget.Toolbar>
-
     </RelativeLayout>
-
-    <include
-        android:id="@+id/bottom_sheet_layout"
-        layout="@layout/tfe_od_layout_bottom_sheet" />
+    <TextView
+        android:id="@+id/detectText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="160dp"
+        android:text=""
+        android:textStyle="bold"
+        android:fontFamily="@font/nunito_light"
+        android:textColor="@android:color/background_light"
+        android:layout_gravity="center|bottom"
+        android:textSize="20sp"/>
+    <TextView
+        android:id="@+id/frame_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:text="Frame: "
+        android:visibility="invisible"
+        android:textStyle="bold"
+        android:fontFamily="@font/nunito_light"
+        android:textColor="@android:color/background_light"
+        android:layout_gravity="left|bottom"
+        android:textSize="14sp" />
+    <TextView
+        android:id="@+id/crop_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="Crop: "
+        android:visibility="invisible"
+        android:textStyle="bold"
+        android:fontFamily="@font/nunito_light"
+        android:textColor="@android:color/background_light"
+        android:layout_gravity="left|bottom"
+        android:textSize="14sp" />
+    <TextView
+        android:id="@+id/inference_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="0dp"
+        android:text="Inference Time: "
+        android:visibility="invisible"
+        android:textStyle="bold"
+        android:fontFamily="@font/nunito_light"
+        android:textColor="@android:color/background_light"
+        android:layout_gravity="left|bottom"
+        android:textSize="14sp"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

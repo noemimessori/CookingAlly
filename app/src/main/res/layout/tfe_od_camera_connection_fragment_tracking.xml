@@ -14,6 +14,7 @@
  limitations under the License.
 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -26,5 +27,15 @@
         android:id="@+id/tracking_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/capture"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center"
+        android:layout_margin="30dp"
+        android:backgroundTint="#FFFFFF"
+        app:fabCustomSize="65dp"
+        />
 
 </FrameLayout>

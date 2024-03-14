@@ -59,7 +59,7 @@ public class MultiBoxTracker {
   final List<Pair<Float, RectF>> screenRects = new LinkedList<Pair<Float, RectF>>();
   private final Logger logger = new Logger();
   private final Queue<Integer> availableColors = new LinkedList<Integer>();
-  private final List<TrackedRecognition> trackedObjects = new LinkedList<TrackedRecognition>();
+  public final List<TrackedRecognition> trackedObjects = new LinkedList<TrackedRecognition>();
   private final Paint boxPaint = new Paint();
   private final float textSizePx;
   private final BorderedText borderedText;
@@ -203,10 +203,10 @@ public class MultiBoxTracker {
     }
   }
 
-  private static class TrackedRecognition {
+  public static class TrackedRecognition {
     RectF location;
     float detectionConfidence;
     int color;
-    String title;
+    public String title;
   }
 }
