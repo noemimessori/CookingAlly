@@ -17,6 +17,8 @@ Number of classes: 5 (carrot, cheese, egg, potato, zucchini)
 Number of images: 2360  
 Split: Train set 75%, Valid set 16%, Test set 9%  
 
+Our custom dataset can be found at https://universe.roboflow.com/project-0tja1/ingredients-cfeum
+
 ## Usage
 To build the pretrained demo in Android Studio, import the project and navigate to the recipeAI/recipeAI directory. Then, connect a device and press 'run'. ....
 
