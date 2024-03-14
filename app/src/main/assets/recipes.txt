@@ -1,0 +1,10 @@
+potato, carrot, zucchini, eggs, cheese: NomedellaRicetta
+carrot, eggs: Frittata di carote
+potato: Patate al forno, Patate croccanti in padella
+potato, eggs: Uova con patate in padella
+potato, eggs, cheese: Tortini di uova patate e formaggio
+eggs, cheese: Uova strapazzate con fontina
+carrot, zucchini, eggs: Torta salata zucchine e carote
+carrot, zucchini: Noodles con zucchine e carote
+cheese: Pasta ai 4 formaggi, Grilled cheese sandwich
+potato, zucchini, eggs: Torta salata con zucchine e patate
