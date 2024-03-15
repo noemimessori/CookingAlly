@@ -222,7 +222,12 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                                         cropToFrameTransform.mapRect(location);
                                         result.setLocation(location);
                                         mappedRecognitions.add(result);
-                                        MainActivity.getInstance().addFood(String.format(result.getTitle()));
+                                        try {
+                                            MainActivity.getInstance().addFood(String.format(result.getTitle()));
+                                        } catch (IOException e) {
+                                            throw new RuntimeException(e);
+                                        }
+                                        //richiamo della add dove passo il cibo detected
                                     }
                                 }
                                 finish();

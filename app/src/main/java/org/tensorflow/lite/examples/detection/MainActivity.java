@@ -31,6 +31,7 @@ import org.tensorflow.lite.examples.detection.tflite.YoloV5Classifier;
 import org.tensorflow.lite.examples.detection.tracking.MultiBoxTracker;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,7 +44,9 @@ public class MainActivity extends Activity {
     public static final float MINIMUM_CONFIDENCE_TF_OD_API = 0.3f;
     public static MainActivity mainActivity;
     private static final String recipesFile = "recipes.txt";
-    private static HashMap<String, Integer> recipes = new HashMap<>();
+    private static HashMap<String, List<String>> recipes = new HashMap<>();
+
+
 
 
     public static MainActivity getInstance() {
@@ -73,13 +76,45 @@ public class MainActivity extends Activity {
 
     }
 
-    public void addFood(String food) {
+    public void addFood(String food) throws IOException {
+        //passato il result.getTitle()
+        List<String> titlesRecipes = recipes.get(food); //x ingred -> titoli ricette
+        HashMap<String, String> recipesWithContent = new HashMap<>();
+        //titolo ricetta - contenuto
+        if(titlesRecipes != null){
+            recipesWithContent = getRecipesContent(titlesRecipes);
+        }
 
     }
 
-    private HashMap loadRecipes(String recipesFile) throws IOException {
-        HashMap<String, List<String>> recipesMap = new HashMap<>();
+    private HashMap<String, String> getRecipesContent(List<String> titlesRecipes) throws IOException {
+        HashMap<String, String> recipesWithContent = new HashMap<>();
+        String nameFileRec;
+        for(String nameRecipe : titlesRecipes){
+            nameFileRec = nameRecipe + ".txt";
+            //in questo modo faccio che legga tutto il file con la ricetta
+            //(titolo, ingredienti, contenuto)
+            //dobbiamo decidere come poi darlo in output e di conseguenza
+            //cambiare la lettura dei file con le ricette
+            try (BufferedReader reader = new BufferedReader(new FileReader(nameFileRec))) {
+                StringBuilder recipeContentBuilder = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    recipeContentBuilder.append(line).append("\n");
+                }
+                recipesWithContent.put(nameRecipe, recipeContentBuilder.toString());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
+        return recipesWithContent;
+    }
+
+
+
+    private HashMap<String, List<String>> loadRecipes(String recipesFile) throws IOException {
+        HashMap<String, List<String>> recipesMap = new HashMap<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(recipesFile))) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -89,12 +124,13 @@ public class MainActivity extends Activity {
 
                 for (String ingredient : ingredients) {
                     String ingredientKey = ingredient.trim();
+
                     List<String> recipes = recipesMap.get(ingredientKey);
                     if (recipes == null) {
                         recipes = new ArrayList<>();
                         recipesMap.put(ingredientKey, recipes);
                     }
-                    recipes.add(recipeName);
+                    recipes.add(recipeName); //così mi va ad aggiornare la mappa?
                 }
             }
         } catch (IOException e) {
