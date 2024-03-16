@@ -38,6 +38,7 @@ import android.widget.Toast;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -215,6 +216,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                         capture.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
+                                List<String> detectedIngredients = new ArrayList<>();
+
                                 for (final Classifier.Recognition result : results) {
                                     final RectF location = result.getLocation();
                                     if (location != null && result.getConfidence() >= finalMinimumConfidence) {
@@ -222,16 +225,19 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                                         cropToFrameTransform.mapRect(location);
                                         result.setLocation(location);
                                         mappedRecognitions.add(result);
-                                        try {
-                                            MainActivity.getInstance().addFood(String.format(result.getTitle()));
-                                        } catch (IOException e) {
-                                            throw new RuntimeException(e);
-                                        }
-                                        //richiamo della add dove passo il cibo detected
+                                        detectedIngredients.add(result.getTitle());
                                     }
                                 }
+
+                                try {
+                                    MainActivity.getInstance().addFood(detectedIngredients);
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+
                                 finish();
                             }
+
                         });
                         tracker.trackResults(mappedRecognitions, currTimestamp);
                         trackingOverlay.postInvalidate();
@@ -244,9 +250,9 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                                     public void run() {
                                         TextView detection_text = (TextView) findViewById(R.id.detectText);
                                         if (mappedRecognitions.size() > 0) {
-                                            detection_text.setText("Food detected!");
+                                            detection_text.setText("Ingredients detected!");
                                         } else {
-                                            detection_text.setText("Point camera at food.");
+                                            detection_text.setText("Point camera at ingredients.");
                                         }
 
                                         TextView frame = (TextView) findViewById(R.id.frame_info);

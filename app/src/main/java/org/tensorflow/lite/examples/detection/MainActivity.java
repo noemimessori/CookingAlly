@@ -18,6 +18,7 @@ import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -35,6 +36,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -49,9 +52,6 @@ public class MainActivity extends Activity {
 
 
 
-    public static MainActivity getInstance() {
-        return mainActivity;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,11 +72,27 @@ public class MainActivity extends Activity {
                 startActivity(new Intent(getApplicationContext(), DetectorActivity.class));
             }
         });
-
-
     }
 
-    public void addFood(String food) throws IOException {
+    public static MainActivity getInstance() {
+        if (mainActivity == null) {
+            mainActivity = new MainActivity();
+        }
+        return mainActivity;
+    }
+
+    public void addFood(List<String> detectedIngredients) throws IOException {
+        List<String> possibleRecipes = findRecipes(detectedIngredients);
+        TextView recipesTextView = findViewById(R.id.recipesTextView);
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String recipe : possibleRecipes) {
+            stringBuilder.append(recipe).append("\n"); // Aggiungi una nuova riga per ogni ricetta
+        }
+
+        recipesTextView.setText(stringBuilder.toString());
+    }
+
+    /*public void addFood(String food) throws IOException {
         //passato il result.getTitle()
         List<String> titlesRecipes = recipes.get(food); //x ingred -> titoli ricette
         HashMap<String, String> recipesWithContent = new HashMap<>();
@@ -84,10 +100,10 @@ public class MainActivity extends Activity {
         if(titlesRecipes != null){
             recipesWithContent = getRecipesContent(titlesRecipes);
         }
-
     }
+     */
 
-    private HashMap<String, String> getRecipesContent(List<String> titlesRecipes) throws IOException {
+   /* private HashMap<String, String> getRecipesContent(List<String> titlesRecipes) throws IOException {
         HashMap<String, String> recipesWithContent = new HashMap<>();
         String nameFileRec;
         for(String nameRecipe : titlesRecipes){
@@ -108,29 +124,53 @@ public class MainActivity extends Activity {
             }
         }
 
+
         return recipesWithContent;
     }
 
+    */
+   private static List<String> findRecipes(List<String> detectedIngredients) {
+       List<String> possibleRecipes = new ArrayList<>();
+
+       // Ordina la lista di ingredienti rilevati per garantire coerenza
+       Collections.sort(detectedIngredients);
+       String detectedIngredientsKey = String.join(",", detectedIngredients);
+
+       // Cerca nella mappa delle ricette usando la chiave combinata degli ingredienti rilevati
+       List<String> matchingRecipes = recipes.get(detectedIngredientsKey);
+       if (matchingRecipes != null) {
+           possibleRecipes.addAll(matchingRecipes);
+       }
+
+       return possibleRecipes;
+   }
 
 
-    private HashMap<String, List<String>> loadRecipes(String recipesFile) throws IOException {
+
+    private static HashMap<String, List<String>> loadRecipes(String recipesFile) throws IOException {
         HashMap<String, List<String>> recipesMap = new HashMap<>();
+
         try (BufferedReader reader = new BufferedReader(new FileReader(recipesFile))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(":");
                 String[] ingredients = parts[0].trim().split(",");
-                String recipeName = parts[1].trim();
+                String[] recipes = parts[1].trim().split(",");
 
-                for (String ingredient : ingredients) {
-                    String ingredientKey = ingredient.trim();
+                if (ingredients.length > 1) {
+                    List<String> combinedIngredients = Arrays.asList(ingredients);
+                    Collections.sort(combinedIngredients); // Ordina gli ingredienti per garantire coerenza
+                    String combinedIngredientsKey = String.join(",", combinedIngredients);
 
-                    List<String> recipes = recipesMap.get(ingredientKey);
-                    if (recipes == null) {
-                        recipes = new ArrayList<>();
-                        recipesMap.put(ingredientKey, recipes);
+                    // Controlla se la chiave combinata degli ingredienti esiste già nella mappa
+                    List<String> ingredientRecipes = recipesMap.get(combinedIngredientsKey);
+                    if (ingredientRecipes == null) {
+                        ingredientRecipes = new ArrayList<>();
+                        recipesMap.put(combinedIngredientsKey, ingredientRecipes);
                     }
-                    recipes.add(recipeName); //così mi va ad aggiornare la mappa?
+
+                    // Aggiungi le ricette alla lista delle ricette per questa combinazione di ingredienti
+                    ingredientRecipes.addAll(Arrays.asList(recipes));
                 }
             }
         } catch (IOException e) {
@@ -139,6 +179,7 @@ public class MainActivity extends Activity {
 
         return recipesMap;
     }
+
 
 
 }
