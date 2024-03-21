@@ -35,12 +35,14 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends Activity {
 
@@ -91,55 +93,20 @@ public class MainActivity extends Activity {
 
         recipesTextView.setText(stringBuilder.toString());
     }
-
-    /*public void addFood(String food) throws IOException {
-        //passato il result.getTitle()
-        List<String> titlesRecipes = recipes.get(food); //x ingred -> titoli ricette
-        HashMap<String, String> recipesWithContent = new HashMap<>();
-        //titolo ricetta - contenuto
-        if(titlesRecipes != null){
-            recipesWithContent = getRecipesContent(titlesRecipes);
-        }
-    }
-     */
-
-   /* private HashMap<String, String> getRecipesContent(List<String> titlesRecipes) throws IOException {
-        HashMap<String, String> recipesWithContent = new HashMap<>();
-        String nameFileRec;
-        for(String nameRecipe : titlesRecipes){
-            nameFileRec = nameRecipe + ".txt";
-            //in questo modo faccio che legga tutto il file con la ricetta
-            //(titolo, ingredienti, contenuto)
-            //dobbiamo decidere come poi darlo in output e di conseguenza
-            //cambiare la lettura dei file con le ricette
-            try (BufferedReader reader = new BufferedReader(new FileReader(nameFileRec))) {
-                StringBuilder recipeContentBuilder = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    recipeContentBuilder.append(line).append("\n");
-                }
-                recipesWithContent.put(nameRecipe, recipeContentBuilder.toString());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-
-        return recipesWithContent;
-    }
-
-    */
    private static List<String> findRecipes(List<String> detectedIngredients) {
        List<String> possibleRecipes = new ArrayList<>();
 
        // Ordina la lista di ingredienti rilevati per garantire coerenza
        Collections.sort(detectedIngredients);
        String detectedIngredientsKey = String.join(",", detectedIngredients);
+       System.out.println(detectedIngredientsKey);
 
        // Cerca nella mappa delle ricette usando la chiave combinata degli ingredienti rilevati
        List<String> matchingRecipes = recipes.get(detectedIngredientsKey);
        if (matchingRecipes != null) {
            possibleRecipes.addAll(matchingRecipes);
+       } else {
+           System.out.println("Nessuna ricetta trovata");
        }
 
        return possibleRecipes;
@@ -147,30 +114,33 @@ public class MainActivity extends Activity {
 
 
 
-    private static HashMap<String, List<String>> loadRecipes(String recipesFile) throws IOException {
+    private HashMap<String, List<String>> loadRecipes(String recipesFile) throws IOException {
         HashMap<String, List<String>> recipesMap = new HashMap<>();
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(recipesFile))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getAssets().open(recipesFile)))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(":");
                 String[] ingredients = parts[0].trim().split(",");
                 String[] recipes = parts[1].trim().split(",");
 
-                if (ingredients.length > 1) {
+                if (ingredients.length > 0) {
                     List<String> combinedIngredients = Arrays.asList(ingredients);
-                    Collections.sort(combinedIngredients); // Ordina gli ingredienti per garantire coerenza
+                    //rimuovo gli spazi in eccesso che verrebbero considerati nella sort
+                    for (int i = 0; i < combinedIngredients.size(); i++) {
+                        combinedIngredients.set(i, combinedIngredients.get(i).trim());
+                    }
+                    Collections.sort(combinedIngredients);
                     String combinedIngredientsKey = String.join(",", combinedIngredients);
 
                     // Controlla se la chiave combinata degli ingredienti esiste già nella mappa
                     List<String> ingredientRecipes = recipesMap.get(combinedIngredientsKey);
                     if (ingredientRecipes == null) {
                         ingredientRecipes = new ArrayList<>();
-                        recipesMap.put(combinedIngredientsKey, ingredientRecipes);
+                        // Aggiungi le ricette alla lista delle ricette per questa combinazione di ingredienti
+                        ingredientRecipes.addAll(Arrays.asList(recipes));
                     }
-
-                    // Aggiungi le ricette alla lista delle ricette per questa combinazione di ingredienti
-                    ingredientRecipes.addAll(Arrays.asList(recipes));
+                    recipesMap.put(combinedIngredientsKey, ingredientRecipes);
                 }
             }
         } catch (IOException e) {
