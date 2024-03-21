@@ -32,6 +32,7 @@ import org.tensorflow.lite.examples.detection.tflite.YoloV5Classifier;
 import org.tensorflow.lite.examples.detection.tracking.MultiBoxTracker;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -44,15 +45,21 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 public class MainActivity extends Activity {
 
     public static final float MINIMUM_CONFIDENCE_TF_OD_API = 0.3f;
     public static MainActivity mainActivity;
     private static final String recipesFile = "recipes.txt";
+    private static final String recipesExcelFile = "recipes_total.xlsx";
     private static HashMap<String, List<String>> recipes = new HashMap<>();
-
-
-
+    private static HashMap<String, Recipe> recipesByExcel = new HashMap<>();
 
 
     @Override
@@ -64,6 +71,7 @@ public class MainActivity extends Activity {
 
         try {
             recipes = loadRecipes(recipesFile);
+            recipesByExcel = loadRecipesByExcel(recipesExcelFile);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -83,6 +91,8 @@ public class MainActivity extends Activity {
         return mainActivity;
     }
 
+    //*************************LOGICA RICETTE CON FILE TESTO
+
     public void addFood(List<String> detectedIngredients) throws IOException {
         List<String> possibleRecipes = findRecipes(detectedIngredients);
         TextView recipesTextView = findViewById(R.id.recipesTextView);
@@ -93,6 +103,7 @@ public class MainActivity extends Activity {
 
         recipesTextView.setText(stringBuilder.toString());
     }
+
    private static List<String> findRecipes(List<String> detectedIngredients) {
        List<String> possibleRecipes = new ArrayList<>();
 
@@ -111,8 +122,6 @@ public class MainActivity extends Activity {
 
        return possibleRecipes;
    }
-
-
 
     private HashMap<String, List<String>> loadRecipes(String recipesFile) throws IOException {
         HashMap<String, List<String>> recipesMap = new HashMap<>();
@@ -150,6 +159,83 @@ public class MainActivity extends Activity {
         return recipesMap;
     }
 
+    //*************************LOGICA RICETTE CON FILE EXCEL
 
+    public void addFoodByExcel(List<String> detectedIngredients) throws IOException {
+        List<Recipe> possibleRecipes = findRecipesByExcel(detectedIngredients);
+        TextView recipesTextView = findViewById(R.id.recipesTextView);
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for (Recipe recipe : possibleRecipes) {
+            stringBuilder.append(recipe).append("\n\n"); // Aggiungi una nuova riga per ogni ricetta
+        }
+        recipesTextView.setText(stringBuilder.toString());
+    }
+
+    private static List<Recipe> findRecipesByExcel(List<String> detectedIngredients) {
+        List<Recipe> possibleRecipes = new ArrayList<>();
+
+        for(Recipe recipe : recipesByExcel.values()) {
+            if(recipe.getIngredients().equals(detectedIngredients))
+                possibleRecipes.add(recipe);
+        }
+
+        if (possibleRecipes.isEmpty())
+            System.out.println("Nessuna ricetta trovata");
+
+        return possibleRecipes;
+    }
+
+    private HashMap<String, Recipe> loadRecipesByExcel(String recipesExcelFile) throws IOException {
+        HashMap<String, Recipe> recipesMap = new HashMap<>();
+
+        try {
+            FileInputStream inputStream = new FileInputStream(recipesExcelFile); // open file
+            Workbook recipesWorkBook = new XSSFWorkbook(inputStream);
+            int numberOfSheets = recipesWorkBook.getNumberOfSheets();
+
+            for (int i=0; i < numberOfSheets; i++) {
+                Sheet sheet = recipesWorkBook.getSheetAt(i);
+                int firstRow = sheet.getFirstRowNum();
+                int lastRow = sheet.getLastRowNum();
+
+                for (int index = firstRow; index <= lastRow; index++) { // 1 recipe for each row
+                    Row row = sheet.getRow(index);
+                    if(isRowEmpty(row))
+                        continue;
+
+                    String name = row.getCell(0).getStringCellValue();
+                    String ingredientsString = row.getCell(1).getStringCellValue();
+                    String timeString = row.getCell(2).getStringCellValue();
+                    String level = row.getCell(3).getStringCellValue();
+                    String instructions = row.getCell(4).getStringCellValue();
+
+                    List<String> ingredients = Arrays.asList(ingredientsString.split(", "));
+                    int time = Integer.valueOf(timeString);
+                    Recipe recipe = new Recipe(name, ingredients, time, level, instructions);
+
+                    recipesMap.put(name, recipe);
+                }
+            }
+
+            inputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return recipesMap;
+    }
+
+    private boolean isRowEmpty(Row row) {
+        if (row == null)
+            return true;
+
+        for (int i = row.getFirstCellNum(); i <= row.getLastCellNum(); i++) {
+            Cell cell = row.getCell(i);
+            if (cell != null)  //&& cell.getCellType() != CellType.BLANK
+                return false;
+        }
+        return true;
+    }
 
 }

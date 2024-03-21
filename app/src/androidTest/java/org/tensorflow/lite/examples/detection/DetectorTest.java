@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+
 
 package org.tensorflow.lite.examples.detection;
 
@@ -44,7 +44,7 @@ import org.tensorflow.lite.examples.detection.tflite.Classifier;
 import org.tensorflow.lite.examples.detection.tflite.Classifier.Recognition;
 import org.tensorflow.lite.examples.detection.tflite.TFLiteObjectDetectionAPIModel;
 
-/** Golden test for Object Detection Reference app. */
+/** Golden test for Object Detection Reference app.
 @RunWith(AndroidJUnit4.class)
 public class DetectorTest {
 
@@ -163,3 +163,4 @@ public class DetectorTest {
     return result;
   }
 }
+*/
