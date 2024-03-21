@@ -31,6 +31,21 @@ android {
     lintOptions {
         abortOnError false
     }
+
+
+    packagingOptions {
+        exclude("META-INF/DEPENDENCIES")
+        exclude("META-INF/LICENSE")
+        exclude("META-INF/RELEASE_NOTES.txt")
+        exclude("META-INF/LICENSE.txt")
+        exclude("META-INF/license.txt")
+        exclude("META-INF/NOTICE")
+        exclude("META-INF/NOTICE.txt")
+        exclude("META-INF/notice.txt")
+        exclude("META-INF/ASL2.0")
+        exclude("META-INF/*.kotlin_module")
+    }
+
 }
 
 // import DownloadModels task
@@ -62,6 +77,8 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation files('libs/poi-3.7.jar')
+    implementation files('libs/poi-ooxml-3.7.jar')
+
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'com.android.support.test:rules:1.0.2'
     androidTestImplementation 'com.google.truth:truth:1.0.1'
@@ -69,5 +86,13 @@ dependencies {
     androidTestImplementation project(path: ':app')
 
 
+}
+
+repositories {
+    google()
+    mavenCentral() // Questo è il repository Maven predefinito per la maggior parte dei progetti
+    maven {
+        url "https://repo.maven.apache.org/maven2" // Repository Maven di Apache POI
+    }
 }
 

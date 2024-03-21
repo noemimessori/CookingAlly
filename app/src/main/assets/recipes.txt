@@ -8,3 +8,4 @@ carrot, zucchini, egg: Torta salata zucchine e carote
 carrot, zucchini: Noodles con zucchine e carote
 cheese: Pasta ai 4 formaggi, Grilled cheese sandwich
 potato, zucchini, egg: Torta salata con zucchine e patate
+carrot: Carotona

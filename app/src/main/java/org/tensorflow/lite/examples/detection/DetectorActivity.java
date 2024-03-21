@@ -230,7 +230,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                                 }
 
                                 try {
-                                    MainActivity.getInstance().addFood(detectedIngredients);
+                                    MainActivity.getInstance().addFoodByExcel(detectedIngredients);
                                 } catch (IOException e) {
                                     throw new RuntimeException(e);
                                 }
