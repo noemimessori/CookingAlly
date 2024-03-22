@@ -1,40 +1,14 @@
 package org.tensorflow.lite.examples.detection;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.Activity;
-import android.app.ActivityManager;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ConfigurationInfo;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.RectF;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import org.tensorflow.lite.examples.detection.customview.OverlayView;
-import org.tensorflow.lite.examples.detection.env.ImageUtils;
-import org.tensorflow.lite.examples.detection.env.Logger;
-import org.tensorflow.lite.examples.detection.env.Utils;
-import org.tensorflow.lite.examples.detection.tflite.Classifier;
-import org.tensorflow.lite.examples.detection.tflite.YoloV5Classifier;
-import org.tensorflow.lite.examples.detection.tracking.MultiBoxTracker;
-
 import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -42,14 +16,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class MainActivity extends Activity {
@@ -65,6 +36,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
 
         mainActivity = this;
@@ -167,7 +139,8 @@ public class MainActivity extends Activity {
         StringBuilder stringBuilder = new StringBuilder();
 
         for (Recipe recipe : possibleRecipes) {
-            stringBuilder.append(recipe).append("\n\n"); // Aggiungi una nuova riga per ogni ricetta
+            System.out.println(recipe.displayRecipe());
+            stringBuilder.append(recipe.displayRecipe()).append("\n\n"); // Aggiungi una nuova riga per ogni ricetta
         }
         recipesTextView.setText(stringBuilder.toString());
     }
@@ -191,9 +164,8 @@ public class MainActivity extends Activity {
 
         try {
             InputStream inputStream = getAssets().open(recipesExcelFile);
-            Workbook recipesWorkBook = new XSSFWorkbook(inputStream);
+            XSSFWorkbook recipesWorkBook = new XSSFWorkbook(inputStream);
             int numberOfSheets = recipesWorkBook.getNumberOfSheets();
-            System.out.println("************************"+ numberOfSheets);
 
             for (int i=0; i < numberOfSheets; i++) {
                 Sheet sheet = recipesWorkBook.getSheetAt(i);
@@ -207,14 +179,12 @@ public class MainActivity extends Activity {
 
                     String name = row.getCell(0).getStringCellValue();
                     String ingredientsString = row.getCell(1).getStringCellValue();
-                    String timeString = row.getCell(2).getStringCellValue();
+                    int time = (int) row.getCell(2).getNumericCellValue();
                     String level = row.getCell(3).getStringCellValue();
                     String instructions = row.getCell(4).getStringCellValue();
 
                     List<String> ingredients = Arrays.asList(ingredientsString.split(", "));
-                    int time = Integer.valueOf(timeString);
                     Recipe recipe = new Recipe(name, ingredients, time, level, instructions);
-
                     recipesMap.put(name, recipe);
                 }
             }
@@ -230,13 +200,11 @@ public class MainActivity extends Activity {
     private boolean isRowEmpty(Row row) {
         if (row == null)
             return true;
-
-        for (int i = row.getFirstCellNum(); i <= row.getLastCellNum(); i++) {
-            Cell cell = row.getCell(i);
-            if (cell != null)  //&& cell.getCellType() != CellType.BLANK
-                return false;
-        }
-        return true;
+        if (row.getCell(0) == null)
+            return true;
+        if (row.getCell(0).getStringCellValue().trim().isEmpty())
+            return true;
+        return false;
     }
 
 }

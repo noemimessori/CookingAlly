@@ -58,13 +58,15 @@ public class Recipe {
         this.instructions = instructions;
     }
 
-    public void displayRecipe() {
-        System.out.println("Recipe: " + name + "\nIngredients:\n" );
+    public String displayRecipe() {
+        String recipeString = "Recipe: "+name+"\nIngredients:\n";
         for (String ingredient : ingredients) {
-            System.out.println("- " + ingredient);
+            recipeString += "- "+ingredient;
         }
-        System.out.println("Preparation Time: " + minutes
-                + "\nLevel: " + level
-                + "\nInstructions:\n"+ instructions);
+        recipeString += "\nPreparation time: "+minutes
+                + "\nLevel: "+level
+                +"\nInstructions:\n"+instructions;
+
+        return recipeString;
     }
 }
