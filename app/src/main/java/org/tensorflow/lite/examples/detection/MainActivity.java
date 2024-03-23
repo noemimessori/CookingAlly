@@ -134,15 +134,22 @@ public class MainActivity extends Activity {
     //*************************LOGICA RICETTE CON FILE EXCEL
 
     public void addFoodByExcel(List<String> detectedIngredients) throws IOException {
-        List<Recipe> possibleRecipes = findRecipesByExcel(detectedIngredients);
         TextView recipesTextView = findViewById(R.id.recipesTextView);
-        StringBuilder stringBuilder = new StringBuilder();
-
-        for (Recipe recipe : possibleRecipes) {
-            System.out.println(recipe.displayRecipe());
-            stringBuilder.append(recipe.displayRecipe()).append("\n\n"); // Aggiungi una nuova riga per ogni ricetta
+        if (detectedIngredients.isEmpty()){
+            recipesTextView.setText("Nessun ingrediente rilevato!");
+        } else {
+            List<Recipe> possibleRecipes = findRecipesByExcel(detectedIngredients);
+            if (possibleRecipes.isEmpty()){
+                recipesTextView.setText("Nessuna ricetta trovata!");
+            } else {
+                StringBuilder stringBuilder = new StringBuilder();
+                for (Recipe recipe : possibleRecipes) {
+                    System.out.println(recipe.displayRecipe());
+                    stringBuilder.append(recipe.displayRecipe()).append("\n\n"); // Aggiungi una nuova riga per ogni ricetta
+                }
+                recipesTextView.setText(stringBuilder.toString());
+            }
         }
-        recipesTextView.setText(stringBuilder.toString());
     }
 
     private static List<Recipe> findRecipesByExcel(List<String> detectedIngredients) {
