@@ -3,7 +3,10 @@ package org.tensorflow.lite.examples.detection;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -12,6 +15,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -135,10 +139,10 @@ public class MainActivity extends Activity {
 
     public void addFoodByExcel(List<String> detectedIngredients) throws IOException {
         TextView recipesTextView = findViewById(R.id.recipesTextView);
+        List<Recipe> possibleRecipes = findRecipesByExcel(detectedIngredients);
         if (detectedIngredients.isEmpty()){
             recipesTextView.setText("Nessun ingrediente rilevato!");
         } else {
-            List<Recipe> possibleRecipes = findRecipesByExcel(detectedIngredients);
             if (possibleRecipes.isEmpty()){
                 recipesTextView.setText("Nessuna ricetta trovata!");
             } else {
@@ -150,6 +154,53 @@ public class MainActivity extends Activity {
                 recipesTextView.setText(stringBuilder.toString());
             }
         }
+        TableLayout t1 = (TableLayout) findViewById(R.id.tablelayout);
+        TableRow tr = new TableRow(this);
+        tr.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
+        TextView ora = new TextView(this);
+        TextView ingredienti = new TextView(this);
+        TextView ricette = new TextView(this);
+        long tsLong = (long) (System.currentTimeMillis() / 1000);
+        java.util.Date d = new java.util.Date(tsLong * 1000L);
+        String ts = new SimpleDateFormat("h:mm a").format(d);
+        ora.setText(ts);
+        StringBuilder builder = new StringBuilder();
+        if (detectedIngredients.isEmpty()) {
+            ingredienti.setText("not found");
+        } else {
+            for (int i = 0; i < detectedIngredients.size(); i++) {
+                builder.append(detectedIngredients.get(i));
+                if (i < detectedIngredients.size() - 1) {
+                    builder.append(", "); // Aggiungi la virgola dopo ogni elemento tranne l'ultimo
+                }
+            }
+            ingredienti.setText(builder.toString());
+        }
+        StringBuilder builder1 = new StringBuilder();
+        if (possibleRecipes.isEmpty()) {
+            ricette.setText("not found");
+        } else {
+            for (int i = 0; i < possibleRecipes.size(); i++) {
+                builder1.append(possibleRecipes.get(i).getName());
+                if (i < possibleRecipes.size() - 1) {
+                    builder1.append(", "); // Aggiungi la virgola dopo ogni elemento tranne l'ultimo
+                }
+            }
+            ricette.setText(builder1.toString());
+        }
+        ora.setGravity(Gravity.CENTER);
+        ingredienti.setGravity(Gravity.CENTER);
+        ricette.setGravity(Gravity.CENTER);
+        ora.setLayoutParams(new TableRow.LayoutParams(0));
+        ingredienti.setLayoutParams(new TableRow.LayoutParams(1));
+        ricette.setLayoutParams(new TableRow.LayoutParams(2));
+        ora.getLayoutParams().width = 0;
+        ingredienti.getLayoutParams().width = 0;
+        ricette.getLayoutParams().width = 0;
+        tr.addView(ora);
+        tr.addView(ingredienti);
+        tr.addView(ricette);
+        t1.addView(tr);
     }
 
     private static List<Recipe> findRecipesByExcel(List<String> detectedIngredients) {
