@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -31,22 +30,24 @@ public class MainActivity extends Activity {
 
     public static final float MINIMUM_CONFIDENCE_TF_OD_API = 0.3f;
     public static MainActivity mainActivity;
-    private static final String recipesFile = "recipes.txt";
     private static final String recipesExcelFile = "recipes_total.xlsx";
-    private static HashMap<String, List<String>> recipes = new HashMap<>();
     private static HashMap<String, Recipe> recipesByExcel = new HashMap<>();
 
+    public static MainActivity getInstance() {
+        if (mainActivity == null) {
+            mainActivity = new MainActivity();
+        }
+        return mainActivity;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-
         mainActivity = this;
 
         try {
-            recipes = loadRecipes(recipesFile);
             recipesByExcel = loadRecipesByExcel(recipesExcelFile);
         } catch (IOException e) {
             e.printStackTrace();
@@ -60,146 +61,75 @@ public class MainActivity extends Activity {
         });
     }
 
-    public static MainActivity getInstance() {
-        if (mainActivity == null) {
-            mainActivity = new MainActivity();
-        }
-        return mainActivity;
-    }
-
-    //*************************LOGICA RICETTE CON FILE TESTO
-
-    public void addFood(List<String> detectedIngredients) throws IOException {
-        List<String> possibleRecipes = findRecipes(detectedIngredients);
-        TextView recipesTextView = findViewById(R.id.recipesTextView);
-        StringBuilder stringBuilder = new StringBuilder();
-        for (String recipe : possibleRecipes) {
-            stringBuilder.append(recipe).append("\n"); // Aggiungi una nuova riga per ogni ricetta
-        }
-
-        recipesTextView.setText(stringBuilder.toString());
-    }
-
-   private static List<String> findRecipes(List<String> detectedIngredients) {
-       List<String> possibleRecipes = new ArrayList<>();
-
-       // Ordina la lista di ingredienti rilevati per garantire coerenza
-       Collections.sort(detectedIngredients);
-       String detectedIngredientsKey = String.join(",", detectedIngredients);
-       System.out.println(detectedIngredientsKey);
-
-       // Cerca nella mappa delle ricette usando la chiave combinata degli ingredienti rilevati
-       List<String> matchingRecipes = recipes.get(detectedIngredientsKey);
-       if (matchingRecipes != null) {
-           possibleRecipes.addAll(matchingRecipes);
-       } else {
-           System.out.println("Nessuna ricetta trovata");
-       }
-
-       return possibleRecipes;
-   }
-
-    private HashMap<String, List<String>> loadRecipes(String recipesFile) throws IOException {
-        HashMap<String, List<String>> recipesMap = new HashMap<>();
-
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getAssets().open(recipesFile)))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(":");
-                String[] ingredients = parts[0].trim().split(",");
-                String[] recipes = parts[1].trim().split(",");
-
-                if (ingredients.length > 0) {
-                    List<String> combinedIngredients = Arrays.asList(ingredients);
-                    //rimuovo gli spazi in eccesso che verrebbero considerati nella sort
-                    for (int i = 0; i < combinedIngredients.size(); i++) {
-                        combinedIngredients.set(i, combinedIngredients.get(i).trim());
-                    }
-                    Collections.sort(combinedIngredients);
-                    String combinedIngredientsKey = String.join(",", combinedIngredients);
-
-                    // Controlla se la chiave combinata degli ingredienti esiste già nella mappa
-                    List<String> ingredientRecipes = recipesMap.get(combinedIngredientsKey);
-                    if (ingredientRecipes == null) {
-                        ingredientRecipes = new ArrayList<>();
-                        // Aggiungi le ricette alla lista delle ricette per questa combinazione di ingredienti
-                        ingredientRecipes.addAll(Arrays.asList(recipes));
-                    }
-                    recipesMap.put(combinedIngredientsKey, ingredientRecipes);
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return recipesMap;
-    }
-
-    //*************************LOGICA RICETTE CON FILE EXCEL
-
     public void addFoodByExcel(List<String> detectedIngredients) throws IOException {
         TextView recipesTextView = findViewById(R.id.recipesTextView);
         List<Recipe> possibleRecipes = findRecipesByExcel(detectedIngredients);
-        if (detectedIngredients.isEmpty()){
-            recipesTextView.setText("Nessun ingrediente rilevato!");
-        } else {
-            if (possibleRecipes.isEmpty()){
-                recipesTextView.setText("Nessuna ricetta trovata!");
-            } else {
+
+        if (detectedIngredients.isEmpty())
+            recipesTextView.setText("No ingredients detected!");
+        else {
+            if (possibleRecipes.isEmpty())
+                recipesTextView.setText("No recipes found!");
+            else {
                 StringBuilder stringBuilder = new StringBuilder();
                 for (Recipe recipe : possibleRecipes) {
-                    System.out.println(recipe.displayRecipe());
-                    stringBuilder.append(recipe.displayRecipe()).append("\n\n"); // Aggiungi una nuova riga per ogni ricetta
+                    stringBuilder.append(recipe.displayRecipe()).append("\n\n");
                 }
                 recipesTextView.setText(stringBuilder.toString());
             }
         }
+
         TableLayout t1 = (TableLayout) findViewById(R.id.tablelayout);
         TableRow tr = new TableRow(this);
         tr.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
-        TextView ora = new TextView(this);
-        TextView ingredienti = new TextView(this);
-        TextView ricette = new TextView(this);
+
+        TextView time = new TextView(this);
+        TextView ingredients = new TextView(this);
+        TextView recipes = new TextView(this);
         long tsLong = (long) (System.currentTimeMillis() / 1000);
         java.util.Date d = new java.util.Date(tsLong * 1000L);
         String ts = new SimpleDateFormat("h:mm a").format(d);
-        ora.setText(ts);
+        time.setText(ts);
+
         StringBuilder builder = new StringBuilder();
-        if (detectedIngredients.isEmpty()) {
-            ingredienti.setText("not found");
-        } else {
+        if (detectedIngredients.isEmpty())
+            ingredients.setText("not found");
+        else {
             for (int i = 0; i < detectedIngredients.size(); i++) {
                 builder.append(detectedIngredients.get(i));
                 if (i < detectedIngredients.size() - 1) {
-                    builder.append(", "); // Aggiungi la virgola dopo ogni elemento tranne l'ultimo
+                    builder.append(", ");
                 }
             }
-            ingredienti.setText(builder.toString());
+            ingredients.setText(builder.toString());
         }
-        StringBuilder builder1 = new StringBuilder();
+
+        builder = new StringBuilder();
         if (possibleRecipes.isEmpty()) {
-            ricette.setText("not found");
+            recipes.setText("not found");
         } else {
             for (int i = 0; i < possibleRecipes.size(); i++) {
-                builder1.append(possibleRecipes.get(i).getName());
+                builder.append(possibleRecipes.get(i).getName());
                 if (i < possibleRecipes.size() - 1) {
-                    builder1.append(", "); // Aggiungi la virgola dopo ogni elemento tranne l'ultimo
+                    builder.append(", ");
                 }
             }
-            ricette.setText(builder1.toString());
+            recipes.setText(builder.toString());
         }
-        ora.setGravity(Gravity.CENTER);
-        ingredienti.setGravity(Gravity.CENTER);
-        ricette.setGravity(Gravity.CENTER);
-        ora.setLayoutParams(new TableRow.LayoutParams(0));
-        ingredienti.setLayoutParams(new TableRow.LayoutParams(1));
-        ricette.setLayoutParams(new TableRow.LayoutParams(2));
-        ora.getLayoutParams().width = 0;
-        ingredienti.getLayoutParams().width = 0;
-        ricette.getLayoutParams().width = 0;
-        tr.addView(ora);
-        tr.addView(ingredienti);
-        tr.addView(ricette);
+
+        time.setGravity(Gravity.CENTER);
+        ingredients.setGravity(Gravity.CENTER);
+        recipes.setGravity(Gravity.CENTER);
+        time.setLayoutParams(new TableRow.LayoutParams(0));
+        ingredients.setLayoutParams(new TableRow.LayoutParams(1));
+        recipes.setLayoutParams(new TableRow.LayoutParams(2));
+        time.getLayoutParams().width = 0;
+        ingredients.getLayoutParams().width = 0;
+        recipes.getLayoutParams().width = 0;
+
+        tr.addView(time);
+        tr.addView(ingredients);
+        tr.addView(recipes);
         t1.addView(tr);
     }
 
@@ -207,13 +137,12 @@ public class MainActivity extends Activity {
         List<Recipe> possibleRecipes = new ArrayList<>();
 
         for(Recipe recipe : recipesByExcel.values()) {
+            System.out.println(detectedIngredients);
+            System.out.println(recipe.getIngredients());
+            System.out.println(recipe.getIngredients().equals(detectedIngredients));
             if(recipe.getIngredients().equals(detectedIngredients))
                 possibleRecipes.add(recipe);
         }
-
-        if (possibleRecipes.isEmpty())
-            System.out.println("Nessuna ricetta trovata");
-
         return possibleRecipes;
     }
 
@@ -224,14 +153,16 @@ public class MainActivity extends Activity {
             InputStream inputStream = getAssets().open(recipesExcelFile);
             XSSFWorkbook recipesWorkBook = new XSSFWorkbook(inputStream);
             int numberOfSheets = recipesWorkBook.getNumberOfSheets();
+            Sheet sheet;
+            Row row;
 
             for (int i=0; i < numberOfSheets; i++) {
-                Sheet sheet = recipesWorkBook.getSheetAt(i);
+                sheet = recipesWorkBook.getSheetAt(i);
                 int firstRow = sheet.getFirstRowNum();
                 int lastRow = sheet.getLastRowNum();
 
-                for (int index = firstRow; index <= lastRow; index++) { // 1 recipe for each row
-                    Row row = sheet.getRow(index);
+                for (int index = firstRow; index <= lastRow; index++) {
+                    row = sheet.getRow(index);
                     if(isRowEmpty(row))
                         continue;
 
@@ -243,15 +174,14 @@ public class MainActivity extends Activity {
 
                     List<String> ingredients = Arrays.asList(ingredientsString.split(", "));
                     Recipe recipe = new Recipe(name, ingredients, time, level, instructions);
+                    System.out.println(recipe.displayRecipe());
                     recipesMap.put(name, recipe);
                 }
             }
-
             inputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return recipesMap;
     }
 

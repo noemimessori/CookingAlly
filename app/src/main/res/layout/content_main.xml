@@ -43,7 +43,7 @@
             android:fontFamily="@font/nunito_light"
             android:gravity="center_horizontal"
 
-            android:text="Ricette possibili: "
+            android:text="Recipes"
             android:textSize="24sp"
             android:textStyle="bold" />
 
@@ -81,7 +81,7 @@
             android:fontFamily="@font/nunito_light"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="5dp"
-            android:text="Ingredienti Log"
+            android:text="Ingredients Log"
             android:gravity="center_horizontal"
             android:textAlignment="center"
             android:textSize="24sp"
@@ -110,7 +110,7 @@
                         android:layout_height="match_parent"
                         android:fontFamily="@font/nunito_light"
                         android:gravity="center"
-                        android:text="Ora"
+                        android:text="Time"
                         android:textStyle="bold"
                         android:textAlignment="center" />
 
@@ -120,7 +120,7 @@
                         android:layout_height="match_parent"
                         android:fontFamily="@font/nunito_light"
                         android:gravity="center"
-                        android:text="Ingredienti"
+                        android:text="Ingredients"
                         android:textStyle="bold"
                         android:textAlignment="center" />
 
@@ -130,7 +130,7 @@
                         android:layout_height="match_parent"
                         android:fontFamily="@font/nunito_light"
                         android:gravity="center"
-                        android:text="Ricette"
+                        android:text="Recipes"
                         android:textStyle="bold"
                         android:textAlignment="center" />
                 </TableRow>
