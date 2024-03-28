@@ -16,7 +16,7 @@ and Tensorflow Lite.
 Number of classes: 5 (carrot, cheese, egg, potato, zucchini)  
 Number of images: 2360  
 Split: Train set 75%, Valid set 16%, Test set 9%  
-
+[MainActivity.java](app%2Fsrc%2Fmain%2Fjava%2Forg%2Ftensorflow%2Flite%2Fexamples%2Fdetection%2FMainActivity.java)
 Our custom dataset can be found at https://universe.roboflow.com/project-0tja1/ingredients-cfeum
 
 ## Usage
