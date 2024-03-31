@@ -135,6 +135,7 @@ public class MainActivity extends Activity {
 
     private static List<Recipe> findRecipesByExcel(List<String> detectedIngredients) {
         List<Recipe> possibleRecipes = new ArrayList<>();
+        Collections.sort(detectedIngredients);
 
         for(Recipe recipe : recipesByExcel.values()) {
             System.out.println(detectedIngredients);
@@ -173,6 +174,7 @@ public class MainActivity extends Activity {
                     String instructions = row.getCell(4).getStringCellValue();
 
                     List<String> ingredients = Arrays.asList(ingredientsString.split(", "));
+                    Collections.sort(ingredients);
                     Recipe recipe = new Recipe(name, ingredients, time, level, instructions);
                     System.out.println(recipe.displayRecipe());
                     recipesMap.put(name, recipe);
