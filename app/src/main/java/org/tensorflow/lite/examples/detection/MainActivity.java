@@ -2,9 +2,12 @@ package org.tensorflow.lite.examples.detection;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -74,6 +77,7 @@ public class MainActivity extends Activity {
                 StringBuilder stringBuilder = new StringBuilder();
                 for (Recipe recipe : possibleRecipes) {
                     stringBuilder.append(recipe.displayRecipe()).append("\n\n");
+                    displayRecipeImage(recipe);
                 }
                 recipesTextView.setText(stringBuilder.toString());
             }
@@ -133,6 +137,22 @@ public class MainActivity extends Activity {
         t1.addView(tr);
     }
 
+    private void displayRecipeImage(Recipe recipe) {
+        ImageView imageView = new ImageView(this);
+        try {
+            // Carica l'immagine dall'asset e imposta la risorsa per l'ImageView
+            InputStream stream = getAssets().open(recipe.getIdImage() + ".png");
+            Drawable drawable = Drawable.createFromStream(stream, null);
+            imageView.setImageDrawable(drawable);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Aggiungi ImageView al layout
+        LinearLayout layout = findViewById(R.id.layout); // Riferimento al layout contenitore delle immagini
+        layout.addView(imageView);
+    }
+
     private static List<Recipe> findRecipesByExcel(List<String> detectedIngredients) {
         List<Recipe> possibleRecipes = new ArrayList<>();
         Collections.sort(detectedIngredients);
@@ -172,10 +192,11 @@ public class MainActivity extends Activity {
                     int time = (int) row.getCell(2).getNumericCellValue();
                     String level = row.getCell(3).getStringCellValue();
                     String instructions = row.getCell(4).getStringCellValue();
+                    String idImage = row.getCell(5).getStringCellValue();
 
                     List<String> ingredients = Arrays.asList(ingredientsString.split(", "));
                     Collections.sort(ingredients);
-                    Recipe recipe = new Recipe(name, ingredients, time, level, instructions);
+                    Recipe recipe = new Recipe(name, ingredients, time, level, instructions, idImage);
                     System.out.println(recipe.displayRecipe());
                     recipesMap.put(name, recipe);
                 }

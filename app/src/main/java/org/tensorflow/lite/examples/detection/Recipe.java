@@ -9,13 +9,15 @@ public class Recipe {
     private int minutes;
     private String level;
     private String instructions;
+    private String idImage;
     
-    public Recipe(String name, List<String> ingredients, int minutes, String level, String instructions ) {
+    public Recipe(String name, List<String> ingredients, int minutes, String level, String instructions, String idImage ) {
         this.name = name;
         this.ingredients = ingredients;
         this.minutes = minutes;
         this.level = level;
         this.instructions = instructions;
+        this.idImage = idImage;
     }
 
     public String getName() {
@@ -32,6 +34,9 @@ public class Recipe {
     }
     public String getInstructions() {
         return instructions;
+    }
+    public String getIdImage() {
+        return idImage;
     }
 
     public String displayRecipe() {
