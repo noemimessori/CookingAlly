@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
@@ -62,10 +63,26 @@ public class MainActivity extends Activity {
                 startActivity(new Intent(getApplicationContext(), DetectorActivity.class));
             }
         });
+
+        Button visualizzaRicettaButton = findViewById(R.id.visualizzaRicettaButton);
+        visualizzaRicettaButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // nuova attività per recipe
+                Intent intent = new Intent(MainActivity.this, VisualizzaRicettaActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     public void addFoodByExcel(List<String> detectedIngredients) throws IOException {
         TextView recipesTextView = findViewById(R.id.recipesTextView);
+        TextView nameRecipe = findViewById(R.id.nameRecipe);
+        TextView ingredientsRecipe = findViewById(R.id.ingredientsRecipe);
+        TextView levelRecipe = findViewById(R.id.levelRecipe);
+        TextView minutesRecipe = findViewById(R.id.minutesRecipe);
+        TextView procedureRecipe = findViewById(R.id.procedureRecipe);
+
         List<Recipe> possibleRecipes = findRecipesByExcel(detectedIngredients);
 
         if (detectedIngredients.isEmpty())
@@ -76,7 +93,12 @@ public class MainActivity extends Activity {
             else {
                 StringBuilder stringBuilder = new StringBuilder();
                 for (Recipe recipe : possibleRecipes) {
-                    stringBuilder.append(recipe.displayRecipe()).append("\n\n");
+                    nameRecipe.setText(recipe.getName());
+                    ingredientsRecipe.setText(recipe.getIngredientsToString());
+                    levelRecipe.setText(recipe.getLevel());
+                    minutesRecipe.setText(recipe.getMinutes());
+                    procedureRecipe.setText(recipe.getInstructions());
+                    //stringBuilder.append(recipe.displayRecipe()).append("\n\n");
                     displayRecipeImage(recipe);
                 }
                 recipesTextView.setText(stringBuilder.toString());
@@ -137,7 +159,7 @@ public class MainActivity extends Activity {
         t1.addView(tr);
     }
 
-    private void displayRecipeImage(Recipe recipe) {
+    private void displayRecipeImage1(Recipe recipe) {
         ImageView imageView = new ImageView(this);
         try {
             // Carica l'immagine dall'asset e imposta la risorsa per l'ImageView
@@ -152,6 +174,20 @@ public class MainActivity extends Activity {
         LinearLayout layout = findViewById(R.id.layout); // Riferimento al layout contenitore delle immagini
         layout.addView(imageView);
     }
+
+    private void displayRecipeImage(Recipe recipe) {
+        try {
+            InputStream stream = getAssets().open(recipe.getIdImage() + ".png");
+            Drawable drawable = Drawable.createFromStream(stream, null);
+            ImageView imageView = findViewById(R.id.IdImageRecipe);
+            imageView.setImageDrawable(drawable);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
     private static List<Recipe> findRecipesByExcel(List<String> detectedIngredients) {
         List<Recipe> possibleRecipes = new ArrayList<>();
@@ -217,5 +253,9 @@ public class MainActivity extends Activity {
             return true;
         return false;
     }
+
+
+
+
 
 }

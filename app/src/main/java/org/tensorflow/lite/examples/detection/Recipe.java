@@ -26,6 +26,11 @@ public class Recipe {
     public List<String> getIngredients() {
         return ingredients;
     }
+
+    public String getIngredientsToString() {
+        String result = String.join(", ", ingredients);
+        return result;
+    }
     public int getMinutes() {
         return minutes;
     }
