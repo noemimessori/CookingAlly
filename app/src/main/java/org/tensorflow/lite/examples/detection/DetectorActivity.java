@@ -16,6 +16,7 @@
 
 package org.tensorflow.lite.examples.detection;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
@@ -67,6 +68,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     private static final Size DESIRED_PREVIEW_SIZE = new Size(640, 640);
     private static final boolean SAVE_PREVIEW_BITMAP = false;
     private static final float TEXT_SIZE_DIP = 10;
+    private static final int REQUEST_CODE = 1;
     OverlayView trackingOverlay;
     private Integer sensorOrientation;
 
@@ -216,7 +218,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                         capture.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                List<String> detectedIngredients = new ArrayList<>();
+                                ArrayList<String> detectedIngredients = new ArrayList<>();
 
                                 for (final Classifier.Recognition result : results) {
                                     final RectF location = result.getLocation();
@@ -228,12 +230,16 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                                         detectedIngredients.add(result.getTitle());
                                     }
                                 }
-
                                 try {
                                     MainActivity.getInstance().addFoodByExcel(detectedIngredients);
                                 } catch (IOException e) {
                                     throw new RuntimeException(e);
                                 }
+
+                                Intent intent = new Intent(DetectorActivity.this, MainActivity.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                                intent.putExtra("detectedIngredients", detectedIngredients);
+                                startActivity(intent);
 
                                 finish();
                             }

@@ -19,6 +19,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,46 +64,44 @@ public class MainActivity extends Activity {
                 startActivity(new Intent(getApplicationContext(), DetectorActivity.class));
             }
         });
+        Button visualizzaRicettaButton = findViewById(R.id.visualizzaRicettaButton);
+        visualizzaRicettaButton.setVisibility(View.INVISIBLE);
+    }
 
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        ArrayList<String> detectedIngredients = intent.getStringArrayListExtra("detectedIngredients");
         Button visualizzaRicettaButton = findViewById(R.id.visualizzaRicettaButton);
         visualizzaRicettaButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // nuova attività per recipe
-                Intent intent = new Intent(MainActivity.this, VisualizzaRicettaActivity.class);
-                startActivity(intent);
+                ArrayList<Recipe> possibleRecipes = findRecipesByExcel(detectedIngredients);
+                Intent intent1 = new Intent(MainActivity.this, VisualizzaRicettaActivity.class);
+                intent1.putExtra("possibleRecipes", (Serializable) possibleRecipes);
+                startActivity(intent1);
             }
         });
     }
 
-    public void addFoodByExcel(List<String> detectedIngredients) throws IOException {
-        TextView recipesTextView = findViewById(R.id.recipesTextView);
+    public void addFoodByExcel(ArrayList<String> detectedIngredients) throws IOException {
         TextView nameRecipe = findViewById(R.id.nameRecipe);
-        TextView ingredientsRecipe = findViewById(R.id.ingredientsRecipe);
-        TextView levelRecipe = findViewById(R.id.levelRecipe);
-        TextView minutesRecipe = findViewById(R.id.minutesRecipe);
-        TextView procedureRecipe = findViewById(R.id.procedureRecipe);
+        Button visualizzaRicettaButton = findViewById(R.id.visualizzaRicettaButton);
+        ArrayList<Recipe> possibleRecipes = findRecipesByExcel(detectedIngredients);
 
-        List<Recipe> possibleRecipes = findRecipesByExcel(detectedIngredients);
-
-        if (detectedIngredients.isEmpty())
-            recipesTextView.setText("No ingredients detected!");
+        if (detectedIngredients.isEmpty()) {
+            nameRecipe.setText("No ingredients detected!");
+            visualizzaRicettaButton.setVisibility(View.INVISIBLE);
+        }
+        else if (possibleRecipes.isEmpty()) {
+            nameRecipe.setText("No recipes found!");
+            visualizzaRicettaButton.setVisibility(View.INVISIBLE);
+        }
         else {
-            if (possibleRecipes.isEmpty())
-                recipesTextView.setText("No recipes found!");
-            else {
-                StringBuilder stringBuilder = new StringBuilder();
-                for (Recipe recipe : possibleRecipes) {
-                    nameRecipe.setText(recipe.getName());
-                    ingredientsRecipe.setText(recipe.getIngredientsToString());
-                    levelRecipe.setText(recipe.getLevel());
-                    minutesRecipe.setText(recipe.getMinutes());
-                    procedureRecipe.setText(recipe.getInstructions());
-                    //stringBuilder.append(recipe.displayRecipe()).append("\n\n");
-                    displayRecipeImage(recipe);
+            for (Recipe recipe : possibleRecipes) {
+                nameRecipe.setText(recipe.getName());
+                visualizzaRicettaButton.setVisibility(View.VISIBLE);
+
                 }
-                recipesTextView.setText(stringBuilder.toString());
-            }
         }
 
         TableLayout t1 = (TableLayout) findViewById(R.id.tablelayout);
@@ -159,38 +158,10 @@ public class MainActivity extends Activity {
         t1.addView(tr);
     }
 
-    private void displayRecipeImage1(Recipe recipe) {
-        ImageView imageView = new ImageView(this);
-        try {
-            // Carica l'immagine dall'asset e imposta la risorsa per l'ImageView
-            InputStream stream = getAssets().open(recipe.getIdImage() + ".png");
-            Drawable drawable = Drawable.createFromStream(stream, null);
-            imageView.setImageDrawable(drawable);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // Aggiungi ImageView al layout
-        LinearLayout layout = findViewById(R.id.layout); // Riferimento al layout contenitore delle immagini
-        layout.addView(imageView);
-    }
-
-    private void displayRecipeImage(Recipe recipe) {
-        try {
-            InputStream stream = getAssets().open(recipe.getIdImage() + ".png");
-            Drawable drawable = Drawable.createFromStream(stream, null);
-            ImageView imageView = findViewById(R.id.IdImageRecipe);
-            imageView.setImageDrawable(drawable);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
 
-
-    private static List<Recipe> findRecipesByExcel(List<String> detectedIngredients) {
-        List<Recipe> possibleRecipes = new ArrayList<>();
+    private static ArrayList<Recipe> findRecipesByExcel(ArrayList<String> detectedIngredients) {
+        ArrayList<Recipe> possibleRecipes = new ArrayList<>();
         Collections.sort(detectedIngredients);
 
         for(Recipe recipe : recipesByExcel.values()) {

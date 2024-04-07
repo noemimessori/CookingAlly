@@ -23,6 +23,10 @@
             android:theme="@style/AppTheme.ObjectDetection" >
         </activity>
         <activity
+            android:name=".VisualizzaRicettaActivity"
+            android:theme="@style/AppTheme.ObjectDetection" >
+        </activity>
+        <activity
             android:name=".MainActivity"
             android:label="RecipeAI"
             android:screenOrientation="portrait"
