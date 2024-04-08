@@ -42,6 +42,28 @@
         android:layout_marginTop="155dp"
         android:orientation="vertical">
 
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:layout_marginTop="5dp"
+            android:fontFamily="@font/harabara"
+            android:gravity="center_horizontal"
+            android:text="Recipes"
+            android:textSize="24sp"
+            />
+
+        <TextView
+            android:id="@+id/noIngredients"
+            android:layout_width="match_parent"
+            android:layout_height="15dp"
+            android:layout_marginTop="5dp"
+            android:fontFamily="@font/harabara"
+            android:gravity="center_horizontal"
+            android:textSize="15sp"
+            />
+
+
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -51,17 +73,6 @@
             app:cardBackgroundColor="@color/salvia"
             app:cardElevation="0dp">
 
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="match_parent"
-                android:layout_height="35dp"
-                android:layout_marginTop="5dp"
-                android:fontFamily="@font/harabara"
-                android:gravity="center_horizontal"
-                android:text="Recipes"
-                android:textSize="24sp"
-                />
-
 
             <ScrollView
                 android:layout_width="match_parent"
@@ -69,6 +80,7 @@
                 android:layout_marginTop="35dp">
 
                 <LinearLayout
+
                     android:id="@+id/RecipeLayout"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"

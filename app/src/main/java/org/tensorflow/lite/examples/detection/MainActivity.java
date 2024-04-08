@@ -63,6 +63,7 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(getApplicationContext(), DetectorActivity.class));
+
             }
         });
 
@@ -74,24 +75,32 @@ public class MainActivity extends Activity {
         ArrayList<Recipe> possibleRecipes = findRecipesByExcel(detectedIngredients);
         LinearLayout recipesLayout = (LinearLayout) findViewById(R.id.RecipeLayout);
 
+        if (recipesLayout.getChildCount() > 0){
+            recipesLayout.removeAllViews();
+        }
+
         for(Recipe r : possibleRecipes) {
             LinearLayout lr = new LinearLayout(this);
-            lr.setLayoutParams(new ViewGroup.LayoutParams(
+            lr.setLayoutParams(new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.MATCH_PARENT));
+                    LinearLayout.LayoutParams.WRAP_CONTENT));
             lr.setOrientation(LinearLayout.HORIZONTAL);
 
             TextView vr = new TextView(this);
             vr.setText(r.getName());
+            LinearLayout.LayoutParams textParams = new LinearLayout.LayoutParams(
+                    0,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            textParams.weight = 1;
+            vr.setLayoutParams(textParams);
             lr.addView(vr);
 
             Button br = new Button(this);
             br.setText("view");
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT);
-            params.gravity = Gravity.RIGHT;
-            br.setLayoutParams(params);
+            br.setLayoutParams(buttonParams);
             br.setOnClickListener(new View.OnClickListener() {
                   @Override
                   public void onClick(View v) {
@@ -106,17 +115,17 @@ public class MainActivity extends Activity {
     }
 
     public void addFoodByExcel(ArrayList<String> detectedIngredients) throws IOException {
-
-        TextView ifRecipe = new TextView(this);
+        TextView noIngredients = findViewById(R.id.noIngredients);
         ArrayList<Recipe> possibleRecipes = findRecipesByExcel(detectedIngredients);
 
         if (detectedIngredients.isEmpty()) {
-            ifRecipe.setText("No ingredients detected!");
+            noIngredients.setText("No ingredients detected!");
         }
         else if (possibleRecipes.isEmpty()) {
-            ifRecipe.setText("No recipes found!");
+            noIngredients.setText("No recipes found!");
+        } else {
+            noIngredients.setText("");
         }
-
         TableLayout t1 = (TableLayout) findViewById(R.id.tablelayout);
         TableRow tr = new TableRow(this);
         tr.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
