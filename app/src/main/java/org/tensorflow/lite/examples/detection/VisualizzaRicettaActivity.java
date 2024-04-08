@@ -22,24 +22,20 @@ public class VisualizzaRicettaActivity extends Activity {
         setContentView(R.layout.view_recipes_layout);
         Button goBackButton = findViewById(R.id.goBackButton);
         Intent intent = getIntent();
-        List<Recipe> possibleRecipes = (ArrayList<Recipe>) intent.getSerializableExtra("possibleRecipes");
-        for (Recipe recipe : possibleRecipes) {
-            System.out.println("lupo " + recipe.getName());
-        }
+        Recipe recipe = (Recipe) intent.getSerializableExtra("recipe");
+
         TextView nameRecipe = findViewById(R.id.nameRecipe);
         TextView ingredientsRecipe = findViewById(R.id.ingredientsRecipe);
         TextView minutesRecipe = findViewById(R.id.minutesRecipe);
         TextView levelRecipe = findViewById(R.id.levelRecipe);
         TextView procedureRecipe = findViewById(R.id.procedureRecipe);
 
-        for (Recipe recipe : possibleRecipes) {
-            nameRecipe.setText(recipe.getName());
-            ingredientsRecipe.setText(recipe.getIngredientsToString());
-            levelRecipe.setText(recipe.getLevel());
-            minutesRecipe.setText(recipe.getMinutes() + " minutes");
-            procedureRecipe.setText(recipe.getInstructions());
-            displayRecipeImage(recipe);
-        }
+        nameRecipe.setText(recipe.getName());
+        ingredientsRecipe.setText(recipe.getIngredientsToString());
+        levelRecipe.setText(recipe.getLevel());
+        minutesRecipe.setText(recipe.getMinutes() + " minutes");
+        procedureRecipe.setText(recipe.getInstructions());
+        displayRecipeImage(recipe);
 
         goBackButton.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -64,44 +65,56 @@ public class MainActivity extends Activity {
                 startActivity(new Intent(getApplicationContext(), DetectorActivity.class));
             }
         });
-        Button visualizzaRicettaButton = findViewById(R.id.visualizzaRicettaButton);
-        visualizzaRicettaButton.setVisibility(View.INVISIBLE);
+
     }
 
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         ArrayList<String> detectedIngredients = intent.getStringArrayListExtra("detectedIngredients");
-        Button visualizzaRicettaButton = findViewById(R.id.visualizzaRicettaButton);
-        visualizzaRicettaButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ArrayList<Recipe> possibleRecipes = findRecipesByExcel(detectedIngredients);
-                Intent intent1 = new Intent(MainActivity.this, VisualizzaRicettaActivity.class);
-                intent1.putExtra("possibleRecipes", (Serializable) possibleRecipes);
-                startActivity(intent1);
-            }
-        });
+        ArrayList<Recipe> possibleRecipes = findRecipesByExcel(detectedIngredients);
+        LinearLayout recipesLayout = (LinearLayout) findViewById(R.id.RecipeLayout);
+
+        for(Recipe r : possibleRecipes) {
+            LinearLayout lr = new LinearLayout(this);
+            lr.setLayoutParams(new ViewGroup.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT));
+            lr.setOrientation(LinearLayout.HORIZONTAL);
+
+            TextView vr = new TextView(this);
+            vr.setText(r.getName());
+            lr.addView(vr);
+
+            Button br = new Button(this);
+            br.setText("view");
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            params.gravity = Gravity.RIGHT;
+            br.setLayoutParams(params);
+            br.setOnClickListener(new View.OnClickListener() {
+                  @Override
+                  public void onClick(View v) {
+                      Intent intent1 = new Intent(MainActivity.this, VisualizzaRicettaActivity.class);
+                      intent1.putExtra("recipe", r);
+                      startActivity(intent1);
+                  }
+            });
+            lr.addView(br);
+            recipesLayout.addView(lr);
+        }
     }
 
     public void addFoodByExcel(ArrayList<String> detectedIngredients) throws IOException {
-        TextView nameRecipe = findViewById(R.id.nameRecipe);
-        Button visualizzaRicettaButton = findViewById(R.id.visualizzaRicettaButton);
+
+        TextView ifRecipe = new TextView(this);
         ArrayList<Recipe> possibleRecipes = findRecipesByExcel(detectedIngredients);
 
         if (detectedIngredients.isEmpty()) {
-            nameRecipe.setText("No ingredients detected!");
-            visualizzaRicettaButton.setVisibility(View.INVISIBLE);
+            ifRecipe.setText("No ingredients detected!");
         }
         else if (possibleRecipes.isEmpty()) {
-            nameRecipe.setText("No recipes found!");
-            visualizzaRicettaButton.setVisibility(View.INVISIBLE);
-        }
-        else {
-            for (Recipe recipe : possibleRecipes) {
-                nameRecipe.setText(recipe.getName());
-                visualizzaRicettaButton.setVisibility(View.VISIBLE);
-
-                }
+            ifRecipe.setText("No recipes found!");
         }
 
         TableLayout t1 = (TableLayout) findViewById(R.id.tablelayout);
