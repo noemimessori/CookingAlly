@@ -12,6 +12,8 @@
     <color name="white">#FFFFFF</color>
     <color name="item_normal">#FFFFFF</color>
     <color name="salvia">#CEFFEE</color>
+    <color name="salvia_dark">#1F3A31</color>
+    <color name="light">#CCE8DE</color>
     <color name="blue">#050E3C</color>
     <color name="colorPrimary">#D2B48C</color>
     <color name="colorPrimaryLight">#CEFFEE</color>

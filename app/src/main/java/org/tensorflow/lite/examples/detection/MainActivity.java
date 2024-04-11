@@ -97,6 +97,8 @@ public class MainActivity extends Activity {
 
             Button br = new Button(this);
             br.setText("view");
+            br.setBackgroundColor(getResources().getColor(R.color.light));
+            br.setTextColor(getResources().getColor(R.color.salvia_dark));
             LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT);
