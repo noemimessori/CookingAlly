@@ -106,7 +106,7 @@ public class MainActivity extends Activity {
             br.setOnClickListener(new View.OnClickListener() {
                   @Override
                   public void onClick(View v) {
-                      Intent intent1 = new Intent(MainActivity.this, VisualizzaRicettaActivity.class);
+                      Intent intent1 = new Intent(MainActivity.this, ViewRecipeActivity.class);
                       intent1.putExtra("recipe", r);
                       startActivity(intent1);
                   }
