@@ -1,4 +1,4 @@
-# RecipeAI
+# CookingAlly
 Easy recipes finder using real-time object detection on Android.
 
 ## Overview
@@ -29,7 +29,7 @@ There are four main activities:
 - VisualizzaRicetteActivity: handles the organized display of recipe features, including the associated image.
 
 ## Usage
-To build the pretrained demo in Android Studio, import the project and navigate to the recipeAI/recipeAI directory. Then, connect a device, frame the ingredients, and view the recommended recipes.
+To build the pretrained demo in Android Studio, import the project and navigate to the cookingAlly/cookingAlly directory. Then, connect a device, frame the ingredients, and view the recommended recipes.
 
 
 
