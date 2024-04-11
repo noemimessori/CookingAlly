@@ -26,7 +26,7 @@ There are four main activities:
 - CameraActivity: manages interactions with the device's camera.
 - Detector Activity: uses the TensorFlow API to detect objects in an image.
 - MainActivity: incorporates the core logic of the application, including reading recipes from an Excel file, selecting recipes based on detected ingredients and creating the log.
-- VisualizzaRicetteActivity: handles the organized display of recipe features, including the associated image.
+- ViewRecipeActivity: handles the organized display of recipe features, including the associated image.
 
 ## Usage
 To build the pretrained demo in Android Studio, import the project and navigate to the cookingAlly/cookingAlly directory. Then, connect a device, frame the ingredients, and view the recommended recipes.
