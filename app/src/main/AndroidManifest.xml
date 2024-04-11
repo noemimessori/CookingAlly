@@ -23,7 +23,7 @@
             android:theme="@style/AppTheme.ObjectDetection" >
         </activity>
         <activity
-            android:name=".VisualizzaRicettaActivity"
+            android:name=".ViewRecipeActivity"
             android:theme="@style/AppTheme.ObjectDetection" >
         </activity>
         <activity
