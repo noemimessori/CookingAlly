@@ -1,4 +1,4 @@
-# RecipeAI
+# CookingAlly
 Easy recipes finder using real-time object detection on Android.
 
 ## Overview
