@@ -28,7 +28,7 @@
         </activity>
         <activity
             android:name=".MainActivity"
-            android:label="RecipeAI"
+            android:label="CookingAlly"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.MainContent" >
             <intent-filter>
