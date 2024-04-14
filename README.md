@@ -1,4 +1,4 @@
-<img src="CookingAlly.gif" width="250" height="500"/>
+<img src="CookingAlly.gif" width="245" height="500"/>
 
 # CookingAlly
 Easy recipes finder using real-time object detection on Android.
