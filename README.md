@@ -1,3 +1,5 @@
+![](CookingAlly.gif)
+
 # CookingAlly
 Easy recipes finder using real-time object detection on Android.
 
