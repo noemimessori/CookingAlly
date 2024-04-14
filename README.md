@@ -1,4 +1,4 @@
-![](CookingAlly.gif)
+<img src="CookingAlly.gif" width="250" height="250"/>
 
 # CookingAlly
 Easy recipes finder using real-time object detection on Android.
