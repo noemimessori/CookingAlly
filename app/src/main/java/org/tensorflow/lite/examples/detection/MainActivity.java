@@ -189,9 +189,6 @@ public class MainActivity extends Activity {
         Collections.sort(detectedIngredients);
 
         for(Recipe recipe : recipesByExcel.values()) {
-            System.out.println(detectedIngredients);
-            System.out.println(recipe.getIngredients());
-            System.out.println(recipe.getIngredients().equals(detectedIngredients));
             if(recipe.getIngredients().equals(detectedIngredients))
                 possibleRecipes.add(recipe);
         }
@@ -228,7 +225,6 @@ public class MainActivity extends Activity {
                     List<String> ingredients = Arrays.asList(ingredientsString.split(", "));
                     Collections.sort(ingredients);
                     Recipe recipe = new Recipe(name, ingredients, time, level, instructions, idImage);
-                    System.out.println(recipe.displayRecipe());
                     recipesMap.put(name, recipe);
                 }
             }
